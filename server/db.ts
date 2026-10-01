@@ -1,0 +1,927 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import type { AppDatabase, Service, PortfolioItem, BlogPost, Testimonial, FAQItem, JobListing, SiteSettings, User, GalleryItem } from '../src/types/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.resolve(__dirname, '../data');
+const DB_FILE = path.join(DATA_DIR, 'database.json');
+
+const INITIAL_SERVICES: Service[] = [
+  {
+    id: 'srv-1',
+    slug: 'web-design-and-development',
+    title: 'Web Design & Custom Development',
+    shortDesc: 'High-performance websites engineered for speed, clean UX, and consistent inbound conversions.',
+    fullDesc: 'We build enterprise-grade modern web applications and responsive corporate websites tailored to your commercial objectives. From custom React/Next.js architectures to scalable CMS and e-commerce platforms, our code is optimized for Core Web Vitals, accessibility, and high conversion rates.',
+    iconName: 'Code',
+    category: 'Development',
+    deliverables: [
+      'Custom UI/UX interface design and interactive wireframes',
+      'Modern responsive frontend built with React, Next.js, or WordPress',
+      'Ultra-fast server architecture with Core Web Vitals score > 90',
+      'On-page SEO semantic structure and Schema.org structured data',
+      'Secure lead capture integrations and custom contact endpoints',
+      'CMS training, documentation, and 90-day ongoing post-launch support'
+    ],
+    benefits: [
+      'Sub-second page load times that improve Google search rankings',
+      'Flawless cross-device usability on mobile, tablet, and desktop',
+      'Enterprise security standards with spam-protected intake forms',
+      'Modular component codebase built for long-term scalability'
+    ],
+    startingPrice: '₹24,999',
+    faqs: [
+      {
+        q: 'How long does a typical custom website build take?',
+        a: 'Standard 5 to 10-page commercial websites typically launch in 2 to 3 weeks. Comprehensive e-commerce or custom web applications take between 4 to 6 weeks.'
+      },
+      {
+        q: 'Do you provide website maintenance and hosting support?',
+        a: 'Yes, we provide ongoing speed audits, security updates, SSL monitoring, and monthly content updates.'
+      }
+    ],
+    seoTitle: 'Web Design & Development Agency in Durgapur & Noida | Digital Hashtag',
+    seoDesc: 'Custom responsive web design, e-commerce development, and high-performance corporate websites built by Digital Hashtag.'
+  },
+  {
+    id: 'srv-2',
+    slug: 'search-engine-optimization-seo',
+    title: 'Search Engine Optimization (SEO)',
+    shortDesc: 'Data-driven technical SEO, on-page optimization, and authority-building to dominate high-intent keywords.',
+    fullDesc: 'Organic search is the highest ROI digital acquisition channel. Digital Hashtag executes rigorous white-hat SEO campaigns that align technical architecture, high-intent content strategy, local Google Business Profiles in Durgapur and Delhi NCR, and high-authority link acquisition.',
+    iconName: 'Search',
+    category: 'Marketing',
+    deliverables: [
+      'Comprehensive technical audit (crawl errors, indexation, speed, canonicals)',
+      'High-intent commercial keyword research and competitor gap analysis',
+      'On-page title, meta, heading, and semantic content optimization',
+      'Local SEO setup, Google Maps optimization, and NAP citation building',
+      'High-authority contextual link building and digital PR outreach',
+      'Monthly rank tracking, Google Search Console, and Analytics reporting'
+    ],
+    benefits: [
+      'Sustainable month-over-month increases in qualified organic traffic',
+      'First-page Google positions for valuable buyer-intent keywords',
+      'Lower customer acquisition costs compared to pure paid media',
+      'Complete visibility in local Google Maps 3-pack for regional searches'
+    ],
+    startingPrice: '₹14,999 / mo',
+    faqs: [
+      {
+        q: 'When can we expect measurable organic search results?',
+        a: 'Technical fixes and low-hanging keyword gains often show in 30 to 60 days. Major competitive keyword movements and substantial organic traffic scaling typically compound within 3 to 6 months.'
+      }
+    ],
+    seoTitle: 'Result-Driven SEO Agency in Durgapur & Noida | Digital Hashtag',
+    seoDesc: 'Accelerate your organic rankings and inbound search traffic with proven technical SEO, local SEO, and content strategies from Digital Hashtag.'
+  },
+  {
+    id: 'srv-3',
+    slug: 'social-media-marketing-smm',
+    title: 'Social Media Marketing (SMM)',
+    shortDesc: 'Engaging creative content, short-form video strategies, and community growth across Instagram, LinkedIn & Facebook.',
+    fullDesc: 'We turn passive social scrollers into loyal brand advocates. Digital Hashtag crafts bespoke content calendars, cinematic short-form video reels, informative carousels, and paid social campaigns designed to boost brand affinity and drive consistent inbound inquiries.',
+    iconName: 'Share2',
+    category: 'Marketing',
+    deliverables: [
+      'Monthly creative social media content calendar and asset pipeline',
+      'Custom graphic posts, infographic carousels, and motion graphics',
+      'Short-form vertical video editing for Instagram Reels & YouTube Shorts',
+      'Copywriting engineered for saves, shares, and comment engagement',
+      'Community management, direct message triage, and audience interaction',
+      'Monthly engagement, follower growth, and reach analytics reports'
+    ],
+    benefits: [
+      'Memorable visual branding across all official social channels',
+      'Consistent posting schedule with zero internal bandwidth strain',
+      'Direct pipeline from social attention to qualified website inquiries'
+    ],
+    startingPrice: '₹12,999 / mo',
+    seoTitle: 'Social Media Marketing Agency | Instagram, LinkedIn & Facebook Growth | Digital Hashtag',
+    seoDesc: 'Grow your social presence with engaging content, short-form video reels, and strategic audience engagement from Digital Hashtag.'
+  },
+  {
+    id: 'srv-4',
+    slug: 'search-engine-marketing-ppc',
+    title: 'Search Engine Marketing & Paid Ads',
+    shortDesc: 'Laser-targeted Google Search Ads, Performance Max, and Meta Ads engineered for measurable ROAS.',
+    fullDesc: 'Stop burning ad budget on low-intent clicks. Digital Hashtag plans, executes, and continuously optimizes paid ad campaigns on Google Ads, Meta Ads (Facebook & Instagram), and LinkedIn with tight negative keyword lists, conversion-tailored landing pages, and advanced audience segmentation.',
+    iconName: 'Target',
+    category: 'Marketing',
+    deliverables: [
+      'Account architecture setup and negative keyword governance',
+      'Google Search, Display, Remarketing, and Performance Max campaigns',
+      'Meta Ads (Facebook & Instagram) custom audience and lookalike funnels',
+      'High-converting ad copy variations and A/B split-tested headlines',
+      'Server-side conversion API setup and Google Tag Manager tracking',
+      'Weekly bid adjustments, negative keyword scrubbing, and budget pacing'
+    ],
+    benefits: [
+      'Immediate qualified inbound lead generation upon campaign activation',
+      'Transparent ad spend reporting with direct attribution to leads and sales',
+      'Lower cost-per-click (CPC) through optimized ad quality scores'
+    ],
+    startingPrice: '₹15,000 / mo + ad spend',
+    seoTitle: 'Google Ads & PPC Management Agency | Digital Hashtag',
+    seoDesc: 'High-ROI Google Ads, Meta Ads, and PPC campaigns managed by certified digital marketing professionals at Digital Hashtag.'
+  },
+  {
+    id: 'srv-5',
+    slug: 'mobile-and-android-development',
+    title: 'Android & Mobile App Development',
+    shortDesc: 'Native Android and cross-platform mobile apps built with clean code and intuitive UX.',
+    fullDesc: 'Bring your business directly into your customers\' pockets. Digital Hashtag builds robust Android applications with clean UI, offline caching capabilities, push notifications, secure API integrations, and seamless Google Play Store deployment.',
+    iconName: 'Smartphone',
+    category: 'Development',
+    deliverables: [
+      'Interactive mobile UI/UX wireframes and visual design system',
+      'Android application development with modern frameworks',
+      'REST API backend integration and cloud database syncing',
+      'Push notification systems and real-time user updates',
+      'Google Play Store compliance check and deployment management',
+      'Post-launch security patching and device compatibility updates'
+    ],
+    benefits: [
+      'Direct customer engagement through targeted push notifications',
+      'Offline-first capabilities for mission-critical operations',
+      'Smooth performance across budget to flagship Android hardware'
+    ],
+    startingPrice: '₹39,999',
+    seoTitle: 'Android App Development Company in India | Digital Hashtag',
+    seoDesc: 'Reliable, scalable Android and mobile application development services by Digital Hashtag.'
+  },
+  {
+    id: 'srv-6',
+    slug: 'brand-identity-and-graphic-design',
+    title: 'Brand Identity & Graphic Design',
+    shortDesc: 'Original logo design, comprehensive visual identity guidelines, and commercial advertising collateral.',
+    fullDesc: 'Your brand is the immediate feeling a prospect experiences when interacting with your business. We craft timeless visual identities, vector logos, brand typography pairings, corporate brochures, and digital ad collateral that command premium positioning in your market.',
+    iconName: 'Palette',
+    category: 'Design',
+    deliverables: [
+      'Primary, secondary, and sub-mark vector logo suites (SVG, EPS, PNG)',
+      'Comprehensive brand guideline book (color codes, type scale, usage rules)',
+      'Corporate stationery: business cards, letterheads, and email signatures',
+      'Commercial advertising posters, social media banners, and roll-up designs',
+      'Vector icon sets and custom illustrative branding graphics'
+    ],
+    benefits: [
+      'Distinctive visual signature that sets you apart from regional competitors',
+      'Consistency across all print, digital, packaging, and advertising media',
+      'Full copyright ownership and master vector source files delivered'
+    ],
+    startingPrice: '₹9,999',
+    seoTitle: 'Brand Identity & Logo Design Agency | Digital Hashtag',
+    seoDesc: 'Stand out with custom vector logo design, corporate visual identity systems, and commercial graphic design by Digital Hashtag.'
+  },
+  {
+    id: 'srv-7',
+    slug: 'b2b-lead-generation-cro',
+    title: 'B2B Lead Generation & Funnel Architecture',
+    shortDesc: 'Automated sales pipelines, high-converting landing pages, and CRM integration for consistent business growth.',
+    fullDesc: 'We bridge marketing campaigns and sales execution. Digital Hashtag designs focused sales funnels that guide prospects from initial awareness to scheduled discovery calls, integrating automated email triggers, CRM systems, and appointment schedulers.',
+    iconName: 'TrendingUp',
+    category: 'Strategy',
+    deliverables: [
+      'Sales funnel blueprint and customer journey mapping',
+      'Conversion Rate Optimized (CRO) landing pages with minimal friction',
+      'Automated email nurture sequences and lead scoring mechanics',
+      'CRM integration (HubSpot, Zoho, Google Sheets, or custom webhook)',
+      'Heatmap tracking and user session replay setup for continuous CRO'
+    ],
+    benefits: [
+      'Higher lead-to-opportunity conversion rates from existing traffic',
+      'Automated lead qualification saving your sales team dozens of hours',
+      'Measurable pipeline predictability for monthly revenue forecasts'
+    ],
+    startingPrice: '₹19,999',
+    seoTitle: 'B2B Lead Generation & Sales Funnels | Digital Hashtag',
+    seoDesc: 'Build a predictable client acquisition engine with proven B2B lead generation and funnel architecture from Digital Hashtag.'
+  },
+  {
+    id: 'srv-8',
+    slug: 'youtube-growth-video-seo',
+    title: 'YouTube Channel Growth & Video SEO',
+    shortDesc: 'Strategic video optimization, thumbnail design, and organic reach expansion on YouTube.',
+    fullDesc: 'YouTube is the second largest search engine in the world. We optimize your video metadata, design click-worthy thumbnails, craft retention-focused titles and descriptions, and implement playlist silos to drive organic views and subscriber growth.',
+    iconName: 'Video',
+    category: 'Marketing',
+    deliverables: [
+      'Video SEO keyword research (tags, title formulas, search-first descriptions)',
+      'High-CTR custom YouTube thumbnail graphic design',
+      'Timestamp chaptering, pinned comment setups, and end-screen cards',
+      'Channel audit, playlist optimization, and brand channel art redesign',
+      'Monthly video analytics reports detailing watch time and subscriber gain'
+    ],
+    benefits: [
+      'Long-term compounding search traffic for educational and brand videos',
+      'Higher click-through rate (CTR) on suggested and home feeds',
+      'Direct conversion of video viewers into website leads and customers'
+    ],
+    startingPrice: '₹11,999 / mo',
+    seoTitle: 'YouTube SEO & Channel Growth Agency | Digital Hashtag',
+    seoDesc: 'Accelerate your YouTube views, subscriber growth, and organic search ranking with video SEO by Digital Hashtag.'
+  }
+];
+
+const INITIAL_PORTFOLIO: PortfolioItem[] = [
+  {
+    id: 'port-1',
+    slug: 'apex-industrial-tooling',
+    title: 'Global B2B Lead Gen & Web Redesign',
+    client: 'Apex Industrial Tooling Ltd.',
+    industry: 'Precision Manufacturing',
+    year: '2025',
+    coverImage: '/src/assets/images/portfolio_web_showcase_1790756013525.jpg',
+    summary: 'Re-engineered legacy website into an ultra-fast headless portal, paired with technical B2B SEO targeting industrial tooling buyers.',
+    challenge: 'Apex suffered from an outdated, non-responsive website taking over 6 seconds to load, resulting in an 82% bounce rate and zero measurable inbound search inquiries.',
+    solution: 'Designed and deployed a responsive React web architecture scoring 98 on Google PageSpeed. Implemented targeted technical SEO targeting 45 commercial keywords.',
+    results: [
+      { label: 'Organic Inbound Inquiries', value: '+185%' },
+      { label: 'Average Page Load Time', value: '0.8s' },
+      { label: 'High-Intent Keywords in Top 3', value: '28' }
+    ],
+    tags: ['Web Development', 'Technical SEO', 'B2B Strategy'],
+    testimonialQuote: 'Digital Hashtag completely transformed our digital pipeline. We went from relying on cold calls to receiving daily RFQs directly from our website.',
+    testimonialAuthor: 'Rajesh Sharma, Director of Business Development'
+  },
+  {
+    id: 'port-2',
+    slug: 'bengal-craft-heritage',
+    title: 'E-Commerce Modernization & Local Growth',
+    client: 'Bengal Craft & Heritage',
+    industry: 'Handcrafted Goods & Lifestyle',
+    year: '2024',
+    coverImage: '/src/assets/images/hero_creative_agency_1790755973218.jpg',
+    summary: 'Built a high-converting modern store with streamlined checkout, paired with hyper-targeted Meta ad campaigns and local search presence.',
+    challenge: 'High cart abandonment rate (76%) and an ad spend bleeding money due to unsegmented targeting and lack of conversion API tracking.',
+    solution: 'Overhauled UI/UX with 1-click checkout options, installed server-side Meta Conversions API, and launched creative reel campaigns.',
+    results: [
+      { label: 'Return on Ad Spend (ROAS)', value: '3.8x' },
+      { label: 'Direct Online Orders', value: '+72%' },
+      { label: 'Cart Abandonment Drop', value: '-31%' }
+    ],
+    tags: ['E-Commerce', 'Meta Ads', 'Conversion CRO'],
+    testimonialQuote: 'The return on our advertising budget tripled within 60 days. Their team understands the real mechanics of conversion.',
+    testimonialAuthor: 'Debarati Mukherjee, Co-Founder'
+  },
+  {
+    id: 'port-3',
+    slug: 'skyline-tech-noida',
+    title: 'Corporate Identity & SEM Performance Engine',
+    client: 'Skyline Tech Solutions',
+    industry: 'Enterprise Cloud & IT Services',
+    year: '2025',
+    coverImage: '/src/assets/images/agency_team_collaboration_1790755997686.jpg',
+    summary: 'Refined brand identity, built conversion landing pages, and launched Google Search Ads targeting CIOs and IT procurement teams across Delhi NCR.',
+    challenge: 'High cost-per-lead (> ₹4,200) from generic Google Ads keywords with low buyer intent and poor landing page message match.',
+    solution: 'Audited search term reports, eliminated negative keyword bleed, built 4 customized landing pages, and optimized ad quality scores.',
+    results: [
+      { label: 'Reduction in Cost Per Lead', value: '-42%' },
+      { label: 'Enterprise Leads in 90 Days', value: '210+' },
+      { label: 'Google Ads Quality Score', value: '9/10' }
+    ],
+    tags: ['Google Ads', 'Brand Identity', 'Landing Pages'],
+    testimonialQuote: 'Digital Hashtag brought discipline to our ad spend. Every rupee is accounted for and our pipeline is consistently healthy.',
+    testimonialAuthor: 'Amitabh Sen, Head of Growth'
+  },
+  {
+    id: 'port-4',
+    slug: 'zenith-healthcare-durgapur',
+    title: 'Regional Patient Acquisition & Local Map Dominance',
+    client: 'Zenith Diagnostic & Wellness',
+    industry: 'Healthcare & Diagnostics',
+    year: '2024',
+    coverImage: '/src/assets/images/office_workspace_loft_1790756025261.jpg',
+    summary: 'Secured #1 ranking on Google Maps across Durgapur, Asansol, and Raniganj for specialized diagnostic queries.',
+    challenge: 'Competitors were dominating the Google 3-Pack; Zenith was invisible for searches like "MRI scan near me" or "diagnostic centre in Durgapur".',
+    solution: 'Optimized Google Business Profiles, established verified local citations, gathered patient review systems, and structured local service landing pages.',
+    results: [
+      { label: 'Google Maps Phone Call Leads', value: '+240%' },
+      { label: 'Local Search Impressions', value: '185K+' },
+      { label: 'Google 3-Pack Rankings', value: '#1 Rank' }
+    ],
+    tags: ['Local SEO', 'Google Business Profile', 'Reputation Management'],
+    testimonialQuote: 'Our clinic phone rings all day with genuine patient bookings. Digital Hashtag is hands-down the best SEO team in West Bengal.',
+    testimonialAuthor: 'Dr. S. K. Banerjee, Managing Director'
+  },
+  {
+    id: 'port-5',
+    slug: 'urban-dine-hospitality',
+    title: 'Viral Social Storytelling & Reservation App',
+    client: 'Urban Dine Hospitality',
+    industry: 'Premium Dining & Lounges',
+    year: '2025',
+    coverImage: '/src/assets/images/hero_creative_agency_1790755973218.jpg',
+    summary: 'Executed mouthwatering video reels and built a streamlined table reservation web app that filled dining tables during weekday slow hours.',
+    challenge: 'Low weekday table occupancy and stagnant social media engagement despite high food quality.',
+    solution: 'Produced professional culinary short-form video reels, launched geo-fenced Instagram promos, and rolled out a 2-tap online reservation system.',
+    results: [
+      { label: 'Monthly Organic Reel Views', value: '65,000+' },
+      { label: 'Weekday Table Bookings', value: '+68%' },
+      { label: 'Total Digital Reservations', value: '3,200+' }
+    ],
+    tags: ['Social Media Marketing', 'Short-form Video', 'Mobile Web App'],
+    testimonialQuote: 'Weekdays used to be slow, but now our tables are pre-booked. The visual quality of their social content is simply unmatched.',
+    testimonialAuthor: 'Pooja Agarwal, Brand Manager'
+  },
+  {
+    id: 'port-6',
+    slug: 'eduvantage-academy',
+    title: 'Student Enrollment Funnel & Google Search PPC',
+    client: 'EduVantage Professional Academy',
+    industry: 'Higher Education & Certifications',
+    year: '2024',
+    coverImage: '/src/assets/images/portfolio_web_showcase_1790756013525.jpg',
+    summary: 'Captured high-intent student leads during academic admission cycles with tailored Google Search PPC and WhatsApp lead nurture automation.',
+    challenge: 'A tight 60-day admission window required filling 350 competitive course seats with qualified candidates.',
+    solution: 'Built high-converting single-purpose course landing pages with integrated WhatsApp instant consultation and targeted search ad funnels.',
+    results: [
+      { label: 'Verified Admissions Enquiries', value: '840+' },
+      { label: 'Course Batch Enrollment Target', value: '100% Met' },
+      { label: 'Cost Per Verified Admission', value: '₹340' }
+    ],
+    tags: ['PPC Advertising', 'Funnel CRO', 'Lead Generation'],
+    testimonialQuote: 'We closed our admissions two weeks early because batches were completely filled. An extraordinarily professional team.',
+    testimonialAuthor: 'Prof. Alok Roy, Dean of Admissions'
+  }
+];
+
+const INITIAL_BLOG: BlogPost[] = [
+  {
+    id: 'post-1',
+    slug: 'local-seo-guide-indian-businesses-2026',
+    title: 'The Blueprint for Local SEO Dominance in Tier 2 & Tier 3 Indian Cities',
+    excerpt: 'How businesses in hubs like Durgapur, Siliguri, and Lucknow can capture 80% of local Google Maps and high-intent search traffic.',
+    content: `Local search is experiencing explosive growth across India. With regional consumers relying on smartphones to find nearby healthcare, legal advice, education, and retail, securing the top spot on Google Maps has become the single most profitable digital channel.
+
+### 1. The Power of Google Business Profile (GBP) Optimization
+Your Google Business Profile is your digital storefront. To outrank local competitors:
+- Verify primary and secondary categories with pinpoint accuracy.
+- Maintain consistent Name, Address, and Phone (NAP) across all directories.
+- Post weekly geo-tagged updates showcasing real client work, office events, and promotions.
+- Build an automated SMS/WhatsApp workflow to collect verified Google 5-star reviews after every customer transaction.
+
+### 2. Hyper-Local On-Page Signals
+Do not simply state that you serve "India". Build dedicated city and district landing pages. For example, if you operate in Durgapur, feature references to landmark areas like City Centre, Muchipara, Bidhannagar, and Benachity. Embed your verified Google Map and include schema structured data marked up with PostalAddress and GeoCoordinates.
+
+### 3. Review Velocity and Authentic Responses
+Search algorithms prioritize recency and consistency. A business receiving 3 genuine reviews every week consistently outranks a competitor with 100 stagnant reviews from two years ago. Always respond to reviews within 24 hours, weaving relevant service keywords naturally into your thank-you reply.`,
+    coverImage: '/src/assets/images/office_workspace_loft_1790756025261.jpg',
+    author: {
+      name: 'Animesh Sharma',
+      role: 'Head of Search Strategy',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+    },
+    category: 'SEO',
+    tags: ['Local SEO', 'Google Maps', 'Digital Marketing India'],
+    readTime: '5 min read',
+    publishedAt: '2026-02-14',
+    updatedAt: '2026-03-01',
+    isPublished: true,
+    seoTitle: 'Local SEO Guide for Indian Businesses | Digital Hashtag',
+    seoDesc: 'Master Google Maps 3-Pack rankings and local search dominance with this practical guide from Digital Hashtag.'
+  },
+  {
+    id: 'post-2',
+    slug: 'core-web-vitals-speed-conversions',
+    title: 'Why Website Speed is Your Most Critical Marketing KPI',
+    excerpt: 'Every 100ms delay costs up to 7% in conversion drops. Here is how modern headless architecture solves bounce rates.',
+    content: `You can run the most brilliant ad campaign in the world, but if your landing page takes 4.5 seconds to load on a 4G connection, half of your paid traffic will bounce before reading your headline.
+
+### The Physics of Bounce Rate
+Google’s research has consistently demonstrated that as page load times increase from 1 second to 3 seconds, the probability of a bounce increases by 32%. At 5 seconds, the bounce probability rises by 90%.
+
+### Core Web Vitals That Actually Matter
+1. **Largest Contentful Paint (LCP)**: Measures perceived loading speed. Marks the point when the page's main content has likely loaded. Target: < 2.5s.
+2. **Interaction to Next Paint (INP)**: Measures responsiveness to user taps and clicks. Target: < 200ms.
+3. **Cumulative Layout Shift (CLS)**: Measures visual stability. Nothing frustrates mobile users more than clicking a button that suddenly jumps because a banner loaded late. Target: < 0.1.
+
+### How We Build at Digital Hashtag
+Instead of bloated generic site builders weighed down with 40 plugins, we engineer clean, lightweight React and Next.js static builds served through global edge CDNs. Assets are compressed, images are served in modern AVIF/WebP formats, and scripts are loaded asynchronously.`,
+    coverImage: '/src/assets/images/portfolio_web_showcase_1790756013525.jpg',
+    author: {
+      name: 'Pritam Das',
+      role: 'Lead Full-Stack Architect',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+    },
+    category: 'Development',
+    tags: ['Web Performance', 'Core Web Vitals', 'Conversion Rate'],
+    readTime: '6 min read',
+    publishedAt: '2026-02-28',
+    updatedAt: '2026-03-10',
+    isPublished: true,
+    seoTitle: 'Website Speed and Conversions Guide | Digital Hashtag',
+    seoDesc: 'Discover how sub-second website speed boosts Google search ranks and lowers ad acquisition costs.'
+  },
+  {
+    id: 'post-3',
+    slug: 'profitable-google-ads-strategy-b2b',
+    title: 'How to Stop Wasting Budget on Google Search Ads: A B2B Playbook',
+    excerpt: 'The exact framework we use to slash cost-per-lead by 40% while doubling qualified sales appointments.',
+    content: `Most business owners who claim "Google Ads doesn't work for our industry" are making three fundamental mistakes: broad match broadness, lack of negative keyword hygiene, and sending clicks to their homepage.
+
+### Step 1: Broad Match Without Guardrails is Financial Leakage
+When you target the broad keyword "industrial valve manufacturer", Google will happily show your ad for "how to fix toilet valve at home" or "valve manufacturing jobs salary". Without rigorous exact and phrase match grouping paired with exhaustive negative keyword lists, 60% of your clicks are irrelevant.
+
+### Step 2: Homepage vs. Conversion Landing Page
+Your homepage exists to introduce your entire company. It has navigation links, social icons, team photos, and dozens of exit doors. A dedicated landing page has one single mission: to answer the searcher's exact query and secure their inquiry.
+
+### Step 3: Server-Side Conversion Tracking
+With browser tracking prevention (ITP) and ad-blockers, client-side pixel tracking misses 20% to 30% of conversions. Setting up server-side Google Tag Manager and Enhanced Conversions feeds accurate data back into Google's Smart Bidding algorithm, allowing it to bid aggressively on actual buyers rather than window shoppers.`,
+    coverImage: '/src/assets/images/agency_team_collaboration_1790755997686.jpg',
+    author: {
+      name: 'Rohan Verma',
+      role: 'PPC & Performance Director',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'
+    },
+    category: 'Marketing',
+    tags: ['Google Ads', 'PPC', 'B2B Marketing', 'Lead Generation'],
+    readTime: '4 min read',
+    publishedAt: '2026-03-05',
+    updatedAt: '2026-03-15',
+    isPublished: true,
+    seoTitle: 'Profitable Google Ads Strategy for B2B | Digital Hashtag',
+    seoDesc: 'Eliminate wasted spend and generate qualified B2B leads with this proven Google Ads guide from Digital Hashtag.'
+  },
+  {
+    id: 'post-4',
+    slug: 'social-media-branding-not-just-follower-counts',
+    title: 'Social Media in 2026: Why Follower Count is a Vanity Metric',
+    excerpt: 'Building an engaged community that drives actual revenue requires shifting focus from passive likes to direct conversions.',
+    content: `Having 50,000 Instagram followers that never buy from you is an expensive hobby. Having 2,500 highly targeted local followers who trust your expertise and book your services is a profitable business.
+
+### The Algorithm Shift to Relevance and Saves
+Algorithms across Instagram, LinkedIn, and YouTube Shorts no longer reward basic hashtag stuffing or generic quote graphics. They prioritize two metrics above all: **Watch Time (Retention)** and **Saves/Shares**.
+
+### The Content Pillar Framework
+We recommend splitting your weekly social calendar into four deliberate pillars:
+1. **Proof of Competence (40%)**: Case study highlights, client before-and-after results, behind-the-scenes problem solving.
+2. **Actionable Education (30%)**: Bite-sized tips that solve an immediate pain point for your customer.
+3. **Culture & Human Connection (20%)**: The faces behind the brand, office milestones, founding principles.
+4. **Direct Offer (10%)**: Clear, low-friction invitation to schedule a call or request a quotation.`,
+    coverImage: '/src/assets/images/hero_creative_agency_1790755973218.jpg',
+    author: {
+      name: 'Deblina Ghosh',
+      role: 'Creative Social Strategist',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'
+    },
+    category: 'Design',
+    tags: ['Social Media', 'Content Strategy', 'Brand Identity'],
+    readTime: '4 min read',
+    publishedAt: '2026-03-12',
+    updatedAt: '2026-03-20',
+    isPublished: true,
+    seoTitle: 'Social Media Strategy That Drives Revenue | Digital Hashtag',
+    seoDesc: 'Discover how to turn social media attention into loyal clients with Digital Hashtag.'
+  }
+];
+
+const INITIAL_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'test-1',
+    clientName: 'Rajesh Sharma',
+    clientRole: 'Director of Business Development',
+    company: 'Apex Industrial Tooling Ltd.',
+    location: 'Noida, UP',
+    content: 'Digital Hashtag completely transformed our digital pipeline. We went from relying on word of mouth and cold calls to receiving daily qualified RFQs directly through our website. Their team is exceptionally responsive and technical.',
+    rating: 5,
+    projectType: 'Web Development & Technical SEO',
+    featured: true
+  },
+  {
+    id: 'test-2',
+    clientName: 'Debarati Mukherjee',
+    clientRole: 'Co-Founder',
+    company: 'Bengal Craft & Heritage',
+    location: 'Durgapur, WB',
+    content: 'The return on our advertising budget tripled within two months. Their creative team designed product reels that actually drove checkouts instead of just empty views. You will not find a better marketing partner in Bengal.',
+    rating: 5,
+    projectType: 'E-Commerce & Meta Ads',
+    featured: true
+  },
+  {
+    id: 'test-3',
+    clientName: 'Amitabh Sen',
+    clientRole: 'Head of Growth',
+    company: 'Skyline Tech Solutions',
+    location: 'Sector 62, Noida',
+    content: 'Digital Hashtag brought real discipline to our Google Ads account. They cut our cost-per-lead by 42% while generating over 200 enterprise inquiries in under a quarter. Transparent, honest, and high-performing.',
+    rating: 5,
+    projectType: 'Google Ads & Brand Refresh',
+    featured: true
+  },
+  {
+    id: 'test-4',
+    clientName: 'Dr. S. K. Banerjee',
+    clientRole: 'Managing Director',
+    company: 'Zenith Diagnostic & Wellness',
+    location: 'Bidhannagar, Durgapur',
+    content: 'Our diagnostic centre now ranks #1 across Durgapur and Asansol for local scans. Our reception team receives calls constantly from patients who found us on Google Maps. Their local SEO capability is remarkable.',
+    rating: 5,
+    projectType: 'Local Maps SEO & Reputation',
+    featured: true
+  },
+  {
+    id: 'test-5',
+    clientName: 'Prof. Alok Roy',
+    clientRole: 'Dean of Admissions',
+    company: 'EduVantage Professional Academy',
+    location: 'Kolkata, WB',
+    content: 'We met our course admissions target two weeks ahead of schedule. The landing pages they designed had conversion rates over 14%, which is unheard of in higher education marketing. Highly recommended!',
+    rating: 5,
+    projectType: 'Lead Generation & PPC Funnel',
+    featured: true
+  }
+];
+
+const INITIAL_FAQS: FAQItem[] = [
+  {
+    id: 'faq-1',
+    question: 'Where is Digital Hashtag located?',
+    answer: 'Digital Hashtag has two primary offices: Our Head Office is located in Durgapur, West Bengal (Plot No-449, Ananda Nagar, Opp ITI Institute, Muchipara), and our Branch Office is in Sector 78 Noida, Uttar Pradesh (D-1701, Antariksh Golf View 2). We serve clients across India and internationally.',
+    category: 'General',
+    order: 1
+  },
+  {
+    id: 'faq-2',
+    question: 'How do you price your marketing and web development services?',
+    answer: 'We provide transparent, fixed-scope proposals tailored to your goals. Web design projects typically begin at ₹24,999, monthly SEO retainer campaigns start at ₹14,999/month, and social media growth packages start at ₹12,999/month. We do not have hidden setup fees or locked long-term contracts.',
+    category: 'Pricing',
+    order: 2
+  },
+  {
+    id: 'faq-3',
+    question: 'What is your working process from consultation to launch?',
+    answer: 'We follow a four-stage process: 1. Discovery & Strategy Audit, 2. Design Wireframing & Asset Production, 3. Development, Technical Testing & Campaign Setup, and 4. Launch, Measurement & Continuous Optimization with bi-weekly reporting.',
+    category: 'Process',
+    order: 3
+  },
+  {
+    id: 'faq-4',
+    question: 'Do I own the website code, domain, and ad accounts?',
+    answer: '100% yes. You maintain complete, unencumbered ownership of your domain, hosting, source code, ad accounts, and creative assets. We never hold your business digital property hostage.',
+    category: 'General',
+    order: 4
+  },
+  {
+    id: 'faq-5',
+    question: 'How do you prevent spam on lead forms and protect client privacy?',
+    answer: 'Every form features silent honeypot anti-spam verification, server-side rate limiting, SSL encryption, and strict data privacy compliance. We never sell or share client contact information.',
+    category: 'Process',
+    order: 5
+  },
+  {
+    id: 'faq-6',
+    question: 'How soon can we start seeing measurable results from digital campaigns?',
+    answer: 'Paid search and social ad campaigns generate inbound inquiries within 48 to 72 hours of going live. Technical and local SEO campaigns typically show tangible ranking gains within 30 to 60 days, compounding significantly thereafter.',
+    category: 'SEO',
+    order: 6
+  }
+];
+
+const INITIAL_CAREERS: JobListing[] = [
+  {
+    id: 'job-1',
+    slug: 'senior-seo-strategist',
+    title: 'Senior SEO Strategist',
+    department: 'Search & Performance',
+    location: 'Durgapur, WB / Hybrid',
+    type: 'Full-time',
+    experience: '3+ years',
+    salaryRange: '₹4.5L - ₹7.2L / annum',
+    description: 'Lead search engine optimization strategies for our roster of B2B and e-commerce clients. You will manage technical audits, keyword clustering, link building strategies, and local Google Business Profile growth.',
+    requirements: [
+      '3+ years of verifiable hands-on SEO agency experience',
+      'Deep fluency with Screaming Frog, Ahrefs, SEMrush, and Google Search Console',
+      'Demonstrated track record of ranking commercial keywords on page 1 of Google',
+      'Strong grasp of Core Web Vitals, schema markup, and JavaScript rendering',
+      'Excellent written English communication and client presentation skills'
+    ],
+    responsibilities: [
+      'Formulate tailored monthly SEO roadmaps for assigned accounts',
+      'Conduct monthly technical crawls and implement on-page adjustments',
+      'Coordinate with content writers on keyword-focused editorial briefs',
+      'Generate transparent monthly reporting on traffic, ranks, and conversions'
+    ],
+    perks: [
+      'Hybrid work flexibility',
+      'Annual performance bonus',
+      'Paid learning certifications',
+      'Healthy creative agency environment'
+    ],
+    isOpen: true,
+    postedAt: '2026-03-01'
+  },
+  {
+    id: 'job-2',
+    slug: 'full-stack-react-developer',
+    title: 'Full-Stack React & Node Developer',
+    department: 'Engineering',
+    location: 'Noida, UP / Durgapur, WB / Remote',
+    type: 'Full-time',
+    experience: '2+ years',
+    salaryRange: '₹5.0L - ₹8.5L / annum',
+    description: 'Build fast, responsive web applications, landing pages, and API endpoints using React, TypeScript, Tailwind CSS, and Node.js/Express.',
+    requirements: [
+      'Proficiency in TypeScript, React, Next.js, and modern CSS/Tailwind',
+      'Experience developing RESTful APIs and database schemas',
+      'Deep understanding of web performance optimization and Core Web Vitals',
+      'Familiarity with Git, CI/CD workflows, and Cloud deployment'
+    ],
+    responsibilities: [
+      'Translate UI/UX designs into pixel-perfect, accessible React components',
+      'Ensure cross-browser compatibility and sub-second load times',
+      'Collaborate with design and SEO teams on technical implementations',
+      'Maintain code quality, security standards, and documentation'
+    ],
+    perks: [
+      'Latest hardware setup',
+      'Flexible working hours',
+      'Health insurance allowance',
+      'Quarterly team offsites'
+    ],
+    isOpen: true,
+    postedAt: '2026-03-10'
+  },
+  {
+    id: 'job-3',
+    slug: 'social-media-content-creator',
+    title: 'Social Media & Short-Form Video Creator',
+    department: 'Creative & Social',
+    location: 'Durgapur, WB / Hybrid',
+    type: 'Full-time',
+    experience: '1-3 years',
+    salaryRange: '₹3.0L - ₹5.0L / annum',
+    description: 'Script, shoot, and edit compelling vertical video reels and design creative social media assets for brand campaigns across Instagram, YouTube, and LinkedIn.',
+    requirements: [
+      'Proven portfolio of edited short-form videos with strong retention metrics',
+      'Proficiency in Premiere Pro, CapCut, DaVinci Resolve, or Canva/Photoshop',
+      'Understanding of social media hooks, visual pacing, and trend dynamics',
+      'Ability to collaborate with clients and capture authentic on-site footage'
+    ],
+    responsibilities: [
+      'Develop weekly content calendars for assigned client brands',
+      'Edit dynamic reels, carousels, and motion banners',
+      'Track engagement analytics and iterate on visual styles',
+      'Manage client comment sections and direct message triage'
+    ],
+    perks: [
+      'Creative creative freedom',
+      'Company equipment provided',
+      'Skill development stipends',
+      'Fun collaborative culture'
+    ],
+    isOpen: true,
+    postedAt: '2026-03-15'
+  },
+  {
+    id: 'job-4',
+    slug: 'google-ads-ppc-specialist',
+    title: 'Google Ads & Performance PPC Specialist',
+    department: 'Search & Performance',
+    location: 'Noida, UP / Hybrid',
+    type: 'Full-time',
+    experience: '2+ years',
+    salaryRange: '₹4.2L - ₹7.0L / annum',
+    description: 'Architect, monitor, and optimize high-converting Google Search, Performance Max, and Meta ad campaigns with obsessive attention to cost-per-acquisition (CPA).',
+    requirements: [
+      'Certified Google Ads professional with proven budget management experience',
+      'Strong analytical capabilities and mastery of Google Analytics 4 & Tag Manager',
+      'Experience setting up server-side conversion tracking and negative keyword trees',
+      'Commercial copywriting skills for crafting high-CTR ad headlines'
+    ],
+    responsibilities: [
+      'Manage day-to-day bidding, search query audits, and budget allocation',
+      'Conduct regular A/B tests on landing pages, ad copies, and extensions',
+      'Deliver weekly and monthly performance summaries with clear actionable insights'
+    ],
+    perks: [
+      'Performance incentives on client growth',
+      'Paid certification renewals',
+      'Rapid career advancement'
+    ],
+    isOpen: true,
+    postedAt: '2026-03-20'
+  }
+];
+
+const INITIAL_SETTINGS: SiteSettings = {
+  companyName: 'Digital Hashtag',
+  tagline: 'Creatively Driven Advertising & Digital Growth Agency',
+  phone: '+91 7047702073',
+  email: 'digitalhashtagllp@gmail.com',
+  headOfficeAddress: 'Plot No-449, Ananda Nagar, Opp ITI Institute, Muchipara, Durgapur, West Bengal 713212, India',
+  branchOfficeAddress: 'D – 1701, Antariksh Golf View 2, Sector 78 Noida, Gautam Buddha Nagar, Uttar Pradesh 201305, India',
+  hours: 'Monday – Saturday: 10:00 AM – 7:00 PM IST',
+  facebookUrl: 'https://www.facebook.com/digitalhashtag.in',
+  instagramUrl: 'https://www.instagram.com/digitalhashtag.in',
+  linkedinUrl: 'https://www.linkedin.com/company/digitalhashtag',
+  twitterUrl: 'https://twitter.com/digitalhashtag',
+  notifyEmail: 'digitalhashtagllp@gmail.com',
+  emailAlertsEnabled: true
+};
+
+const INITIAL_USERS: User[] = [
+  {
+    id: 'usr-admin',
+    email: 'admin@digitalhashtag.in',
+    name: 'Chief Executive Administrator',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'usr-editor',
+    email: 'editor@digitalhashtag.in',
+    name: 'Senior Content Editor',
+    role: 'editor',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+  }
+];
+
+const INITIAL_GALLERY: GalleryItem[] = [
+  {
+    id: 'gal-1',
+    title: 'Creative Studio & Strategy Hub',
+    category: 'Studio',
+    imageUrl: '/src/assets/images/hero_creative_agency_1790755973218.jpg',
+    caption: 'Our modern creative studio space where ideas transform into campaigns.',
+    createdAt: '2026-03-01'
+  },
+  {
+    id: 'gal-2',
+    title: 'Collaborative Marketing Sprint',
+    category: 'Team',
+    imageUrl: '/src/assets/images/agency_team_collaboration_1790755997686.jpg',
+    caption: 'Cross-functional session between SEO specialists and frontend developers.',
+    createdAt: '2026-03-05'
+  },
+  {
+    id: 'gal-3',
+    title: 'Web Engineering & Core Vitals Lab',
+    category: 'Projects',
+    imageUrl: '/src/assets/images/portfolio_web_showcase_1790756013525.jpg',
+    caption: 'Sub-second modern interface engineering and responsive testing.',
+    createdAt: '2026-03-10'
+  },
+  {
+    id: 'gal-4',
+    title: 'Durgapur Headquarters Loft',
+    category: 'Office',
+    imageUrl: '/src/assets/images/office_workspace_loft_1790756025261.jpg',
+    caption: 'Head office at Muchipara, Durgapur, West Bengal.',
+    createdAt: '2026-03-15'
+  },
+  {
+    id: 'gal-5',
+    title: 'Brand Identity Vector Workshop',
+    category: 'Creative',
+    imageUrl: 'https://images.unsplash.com/photo-1542744094-3a31727560fa?w=800&auto=format&fit=crop&q=80',
+    caption: 'Typography, logo lockups, and design asset development.',
+    createdAt: '2026-03-18'
+  },
+  {
+    id: 'gal-6',
+    title: 'Client Performance Review & Scaling',
+    category: 'Events',
+    imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80',
+    caption: 'Quarterly review delivering transparent growth metrics.',
+    createdAt: '2026-03-22'
+  }
+];
+
+function getInitialDatabase(): AppDatabase {
+  return {
+    users: INITIAL_USERS,
+    services: INITIAL_SERVICES,
+    portfolio: INITIAL_PORTFOLIO,
+    blog: INITIAL_BLOG,
+    testimonials: INITIAL_TESTIMONIALS,
+    faqs: INITIAL_FAQS,
+    careers: INITIAL_CAREERS,
+    applications: [],
+    enquiries: [
+      {
+        id: 'enq-seed-1',
+        name: 'Sourav Ganguly',
+        email: 'sourav@bengalindustrial.com',
+        phone: '+91 9830123456',
+        company: 'Bengal Industrial Corp',
+        serviceInterest: 'Web Design & Custom Development',
+        budget: '₹25,000 - ₹50,000',
+        timeline: 'Within 1 month',
+        message: 'We need to re-engineer our corporate portal for high-speed performance and international client lead capture.',
+        status: 'in-progress',
+        notes: 'Discovery call completed. Wireframe proposal sent.',
+        submittedAt: '2026-03-22T10:15:00.000Z'
+      }
+    ],
+    gallery: INITIAL_GALLERY,
+    pagesMeta: [
+      {
+        id: 'meta-home',
+        path: '/',
+        title: 'Digital Hashtag | Digital Marketing & Web Agency in Durgapur & Noida',
+        description: 'Premier digital marketing agency founded in 2020 specializing in SEO, PPC Ads, Web Design, Social Media Marketing, and Android Development.',
+        keywords: 'digital marketing agency durgapur, seo agency noida, web development west bengal, ppc advertising agency'
+      },
+      {
+        id: 'meta-about',
+        path: '/about',
+        title: 'About Digital Hashtag | Our Agency Story, Team & Vision',
+        description: 'Learn about Digital Hashtag, our journey since 2020, our dual-hub presence in Durgapur and Noida, and our team of digital strategists.',
+        keywords: 'about digital hashtag, advertising agency durgapur, marketing team noida'
+      },
+      {
+        id: 'meta-services',
+        path: '/services',
+        title: 'Digital Marketing & Web Services | Digital Hashtag',
+        description: 'Explore full-spectrum marketing and development services: SEO, Google Ads, React Web Development, Android Apps, and Branding.',
+        keywords: 'digital marketing services, seo services durgapur, website design noida, google ads management'
+      },
+      {
+        id: 'meta-portfolio',
+        path: '/portfolio',
+        title: 'Client Case Studies & Marketing Portfolio | Digital Hashtag',
+        description: 'Review measurable case studies and verified growth results delivered for manufacturing, healthcare, education, and retail clients.',
+        keywords: 'digital marketing case studies, web design portfolio, seo results india'
+      },
+      {
+        id: 'meta-gallery',
+        path: '/gallery',
+        title: 'Agency Gallery & Studio Moments | Digital Hashtag',
+        description: 'Explore photos from our creative studios, team sprints, client events, and office moments across Durgapur and Noida.',
+        keywords: 'digital hashtag gallery, agency photos, office durgapur, team events noida'
+      },
+      {
+        id: 'meta-careers',
+        path: '/careers',
+        title: 'Careers at Digital Hashtag | Join Our Creative & Engineering Team',
+        description: 'Explore open roles in SEO, React development, social media creation, and PPC management at our Durgapur and Noida offices.',
+        keywords: 'digital marketing jobs durgapur, react developer jobs west bengal, seo careers noida'
+      },
+      {
+        id: 'meta-contact',
+        path: '/contact',
+        title: 'Contact Digital Hashtag | Get a Free Proposal & Growth Audit',
+        description: 'Get in touch with Digital Hashtag head office in Durgapur or branch office in Noida. Phone: +91 7047702073, Email: digitalhashtagllp@gmail.com.',
+        keywords: 'contact digital hashtag, durgapur office address, noida digital agency'
+      }
+    ],
+    settings: INITIAL_SETTINGS,
+    notificationsLog: []
+  };
+}
+
+export function initDatabase(): AppDatabase {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+
+  if (!fs.existsSync(DB_FILE)) {
+    const initialDb = getInitialDatabase();
+    saveDatabase(initialDb);
+    return initialDb;
+  }
+
+  try {
+    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const parsed: AppDatabase = JSON.parse(raw);
+
+    // Auto-migrate schema updates
+    let updated = false;
+    if (!parsed.gallery || !Array.isArray(parsed.gallery)) {
+      parsed.gallery = INITIAL_GALLERY;
+      updated = true;
+    }
+    if (!parsed.users) {
+      parsed.users = INITIAL_USERS;
+      updated = true;
+    }
+
+    if (updated) {
+      saveDatabase(parsed);
+    }
+    return parsed;
+  } catch (error) {
+    console.error('Failed to parse database.json, reinitializing initial database:', error);
+    const initialDb = getInitialDatabase();
+    saveDatabase(initialDb);
+    return initialDb;
+  }
+}
+
+export function getDatabase(): AppDatabase {
+  return initDatabase();
+}
+
+export function saveDatabase(db: AppDatabase): void {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  const tempPath = `${DB_FILE}.tmp.${Date.now()}`;
+  fs.writeFileSync(tempPath, JSON.stringify(db, null, 2), 'utf-8');
+  fs.renameSync(tempPath, DB_FILE);
+}

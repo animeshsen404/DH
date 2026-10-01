@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 110" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- D gradient -->
+    <linearGradient id="dh_d_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F99B1D" />
+      <stop offset="50%" stop-color="#F58220" />
+      <stop offset="100%" stop-color="#EE6500" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left Icon Lockup: Stylized D with nested Charcoal Hashtag -->
+  <g id="emblem" transform="translate(4, 4)">
+    <!-- Orange D Outline Shape -->
+    <!-- Outer D curve -->
+    <path
+      d="M10 4 H52 C84 4 104 26 104 51 C104 76 84 98 52 98 H10 V82 H50 C72 82 86 68 86 51 C86 34 72 20 50 20 H10 Z"
+      fill="url(#dh_d_grad)"
+    />
+
+    <!-- Interwoven Charcoal Hashtag inside D opening -->
+    <!-- Vertical Bar 1 -->
+    <rect x="18" y="24" width="13" height="54" rx="2" fill="#282B33" />
+    <!-- Vertical Bar 2 -->
+    <rect x="42" y="24" width="13" height="54" rx="2" fill="#282B33" />
+    <!-- Horizontal Bar 1 -->
+    <rect x="4" y="38" width="65" height="13" rx="2" fill="#323640" />
+    <!-- Horizontal Bar 2 -->
+    <rect x="4" y="59" width="65" height="13" rx="2" fill="#323640" />
+    <!-- Overlap shadow effects -->
+    <rect x="18" y="38" width="13" height="13" fill="#202229" opacity="0.6" />
+    <rect x="42" y="38" width="13" height="13" fill="#202229" opacity="0.6" />
+    <rect x="18" y="59" width="13" height="13" fill="#202229" opacity="0.6" />
+    <rect x="42" y="59" width="13" height="13" fill="#202229" opacity="0.6" />
+  </g>
+
+  <!-- Right Typography -->
+  <!-- DIGITAL (Orange) -->
+  <text
+    x="122"
+    y="60"
+    font-family="'Plus Jakarta Sans', 'Montserrat', 'Inter', -apple-system, sans-serif"
+    font-size="44"
+    font-weight="400"
+    letter-spacing="1"
+    fill="#F58220"
+  >DIGITAL</text>
+
+  <!-- HASHTAG (Charcoal Bold) -->
+  <text
+    x="300"
+    y="60"
+    font-family="'Plus Jakarta Sans', 'Montserrat', 'Inter', -apple-system, sans-serif"
+    font-size="44"
+    font-weight="800"
+    letter-spacing="0.5"
+    fill="#2B2E38"
+  >HASHTAG</text>
+
+  <!-- Trademark (TM) in circle -->
+  <g transform="translate(506, 26)">
+    <circle cx="11" cy="11" r="10" stroke="#2B2E38" stroke-width="1.8" fill="none" />
+    <text
+      x="11"
+      y="15"
+      font-family="'Plus Jakarta Sans', 'Inter', sans-serif"
+      font-size="9"
+      font-weight="700"
+      text-anchor="middle"
+      fill="#2B2E38"
+    >TM</text>
+  </g>
+
+  <!-- Tagline: WE CREATE YOUR IDENTITY -->
+  <text
+    x="318"
+    y="88"
+    font-family="'Plus Jakarta Sans', 'Montserrat', 'Inter', -apple-system, sans-serif"
+    font-size="14.5"
+    font-weight="500"
+    letter-spacing="6.8"
+    text-anchor="middle"
+    fill="#F58220"
+  >WE CREATE YOUR IDENTITY</text>
+</svg>
